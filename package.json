@@ -1,0 +1,14 @@
+{
+  "name": "hastelecom-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @hastelecom/landing && npm run build -w @hastelecom/crm",
+    "dev": "echo 'Run apps separately'",
+    "db:migrate": "npm run prisma:migrate -w @hastelecom/db",
+    "db:seed": "npm run prisma:seed -w @hastelecom/db"
+  }
+}
