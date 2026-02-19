@@ -8,6 +8,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN mkdir -p apps/landing/public
 RUN npm run build -w @hastelecom/landing
 
 FROM node:20-alpine AS runner
