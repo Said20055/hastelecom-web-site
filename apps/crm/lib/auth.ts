@@ -1,13 +1,30 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import type { Role } from '@prisma/client';
+import type { StringValue } from 'ms';
 
 export type AccessPayload = { sub: string; role: Role; email: string; name: string };
 
+type JwtExpiresIn = SignOptions['expiresIn'];
+
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
-const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || '15m';
-const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || '7d';
+const ACCESS_TOKEN_TTL = getJwtExpiresIn(process.env.ACCESS_TOKEN_TTL, '15m');
+const REFRESH_TOKEN_TTL = getJwtExpiresIn(process.env.REFRESH_TOKEN_TTL, '7d');
+
+function getJwtExpiresIn(value: string | undefined, fallback: StringValue): JwtExpiresIn {
+  if (!value) return fallback;
+
+  if (/^\d+$/.test(value)) {
+    return Number(value);
+  }
+
+  if (/^\d+(ms|s|m|h|d|w|y)$/.test(value)) {
+    return value as StringValue;
+  }
+
+  return fallback;
+}
 
 export function signAccessToken(payload: AccessPayload) {
   return jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: ACCESS_TOKEN_TTL });
@@ -30,13 +47,18 @@ export function setRefreshCookie(token: string) {
     httpOnly: true,
     path: '/crm/api/auth',
     sameSite: 'lax',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 7 * 24 * 3600
   });
 }
 
 export function clearRefreshCookie() {
-  cookies().set('refreshToken', '', { httpOnly: true, path: '/crm/api/auth', expires: new Date(0) });
+  cookies().set('refreshToken', '', {
+    httpOnly: true,
+    path: '/crm/api/auth',
+    secure: process.env.NODE_ENV === 'production',
+    expires: new Date(0)
+  });
 }
 
 export function getUserFromRequest(req: NextRequest): AccessPayload | null {
