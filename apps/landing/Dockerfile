@@ -18,4 +18,4 @@ COPY --from=builder /app/apps/landing/.next/standalone ./
 COPY --from=builder /app/apps/landing/.next/static ./apps/landing/.next/static
 COPY --from=builder /app/apps/landing/public ./apps/landing/public
 EXPOSE 3000
-CMD ["node", "apps/landing/server.js"]
+CMD ["node", "server.js"]

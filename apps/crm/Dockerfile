@@ -22,4 +22,4 @@ COPY --from=builder /app/apps/crm/.next/standalone ./
 COPY --from=builder /app/apps/crm/.next/static ./apps/crm/.next/static
 COPY --from=builder /app/apps/crm/public ./apps/crm/public
 EXPOSE 3000
-CMD ["node", "apps/crm/server.js"]
+CMD ["node", "server.js"]
