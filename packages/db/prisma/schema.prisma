@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  operator
+  tech
+  guest
+}
+
+enum TicketType {
+  connect
+  support
+  internal
+}
+
+enum TicketStatus {
+  new
+  in_progress
+  waiting
+  done
+  closed
+  canceled
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum TariffType {
+  home
+  business
+}
+
+enum AnnouncementLevel {
+  info
+  warn
+  critical
+}
+
+enum AnnouncementPlacement {
+  top
+  homepage
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  role         Role            @default(user)
+  name         String
+  createdAt    DateTime        @default(now())
+  createdTickets Ticket[]      @relation("CreatedTickets")
+  assignedTickets Ticket[]     @relation("AssignedTickets")
+  comments     TicketComment[]
+  history      TicketHistory[]
+}
+
+model Ticket {
+  id            String          @id @default(cuid())
+  type          TicketType
+  address       String
+  contactName   String
+  phone         String
+  description   String
+  status        TicketStatus    @default(new)
+  priority      TicketPriority  @default(medium)
+  createdById   String
+  assignedToId  String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     User            @relation("CreatedTickets", fields: [createdById], references: [id])
+  assignedTo    User?           @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  comments      TicketComment[]
+  history       TicketHistory[]
+}
+
+model TicketComment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  authorId  String
+  text      String
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model TicketHistory {
+  id         String       @id @default(cuid())
+  ticketId   String
+  actorId    String
+  action     String
+  fromStatus TicketStatus?
+  toStatus   TicketStatus?
+  meta       Json?
+  createdAt  DateTime     @default(now())
+  ticket     Ticket       @relation(fields: [ticketId], references: [id])
+  actor      User         @relation(fields: [actorId], references: [id])
+}
+
+model Tariff {
+  id         String    @id @default(cuid())
+  title      String
+  speedMbps  Int
+  price      Int
+  type       TariffType
+  features   Json
+  isFeatured Boolean   @default(false)
+  isActive   Boolean   @default(true)
+}
+
+model Announcement {
+  id         String                @id @default(cuid())
+  title      String
+  body       String
+  level      AnnouncementLevel
+  startsAt   DateTime
+  endsAt     DateTime?
+  isActive   Boolean               @default(true)
+  placement  AnnouncementPlacement
+}
