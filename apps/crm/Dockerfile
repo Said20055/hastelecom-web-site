@@ -18,6 +18,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache openssl libc6-compat
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/crm/.next/standalone ./
 COPY --from=builder /app/apps/crm/.next/static ./apps/crm/.next/static
 COPY --from=builder /app/apps/crm/public ./apps/crm/public
