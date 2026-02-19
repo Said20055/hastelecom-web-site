@@ -11,6 +11,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN mkdir -p apps/crm/public
 RUN npm run prisma:generate -w @hastelecom/db && npm run build -w @hastelecom/crm
 
 FROM node:20-alpine AS runner
