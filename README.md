@@ -15,6 +15,7 @@ docker-compose.yml
 ```bash
 docker compose up --build
 ```
+> API ждёт готовность Postgres перед миграциями и стартом приложения (устранён race condition первого запуска).
 Приложение доступно на `http://has-telecom.local`:
 - Landing: `/`
 - CRM: `/crm/`
