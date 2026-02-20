@@ -32,11 +32,6 @@ services:
       context: .
       dockerfile: apps/crm/Dockerfile
 
-  crm:
-    build:
-      context: .
-      dockerfile: apps/crm/Dockerfile
-
   landing:
     build:
       context: .
