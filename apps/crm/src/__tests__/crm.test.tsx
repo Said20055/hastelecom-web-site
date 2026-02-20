@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Login from '../pages/Login'
 import TicketsPage from '../pages/TicketsPage'
 import { apiFetch, setToken } from '../lib/api'
@@ -9,9 +10,11 @@ beforeEach(() => {
 })
 
 describe('crm ui', () => {
-  it('login form submits', async () => {
+  it('login form renders and allows typing', async () => {
     ;(fetch as any).mockResolvedValueOnce({ ok: true, json: async () => ({ access: 'a' }) })
-    render(<Login />)
+    render(<MemoryRouter><Login /></MemoryRouter>)
+    fireEvent.change(screen.getByLabelText('email'), { target: { value: 'operator@has.local' } })
+    fireEvent.change(screen.getByLabelText('password'), { target: { value: 'Operator123!' } })
     fireEvent.click(screen.getByText('Sign in'))
     await waitFor(() => expect(fetch).toHaveBeenCalled())
   })

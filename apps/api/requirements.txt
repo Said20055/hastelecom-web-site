@@ -8,5 +8,4 @@ psycopg2-binary>=2.9
 python-dotenv>=1.0
 pytest>=8.2
 pytest-django>=4.8
-whitenoise
-
+whitenoise>=6.8

@@ -3,9 +3,9 @@
 ## Структура
 ```
 apps/
-  api/      # Django + DRF
-  crm/      # React/Vite SPA
-  landing/  # React/Vite landing
+  api/      # Django + DRF + JWT
+  crm/      # Vite + React SPA
+  landing/  # Vite landing
 infra/
   nginx.conf
 docker-compose.yml
@@ -15,20 +15,22 @@ docker-compose.yml
 ```bash
 docker compose up --build
 ```
-> API ждёт готовность Postgres перед миграциями и стартом приложения (устранён race condition первого запуска).
 Приложение доступно на `http://has-telecom.local`:
 - Landing: `/`
 - CRM: `/crm/`
 - API: `/crm/api/`
 - Admin: `/crm/admin/`
 
-## Миграции
+Если нужно сбросить БД volume и перезапустить с нуля:
 ```bash
-docker compose exec api python manage.py migrate
+docker compose down -v
+docker compose up --build
 ```
 
-## Seed
+## Миграции / статика / seed
 ```bash
+docker compose exec api python manage.py migrate
+docker compose exec api python manage.py collectstatic --noinput
 docker compose exec api python manage.py seed
 ```
 
@@ -45,3 +47,8 @@ CRM:
 ```bash
 docker compose exec crm npm run test
 ```
+
+## Debug checklist
+- Проверка статики Django admin: `http://has-telecom.local/static/admin/css/base.css`
+- Проверка SPA роутов CRM: `http://has-telecom.local/crm/dashboard`
+- Проверка Public API: `http://has-telecom.local/crm/api/public/tariffs`

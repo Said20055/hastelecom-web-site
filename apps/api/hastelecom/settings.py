@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('JWT_SECRET', 'unsafe-dev-key')
@@ -22,15 +23,9 @@ INSTALLED_APPS = [
     'core',
 ]
 
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-}
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,7 +50,6 @@ TEMPLATES = [{
 WSGI_APPLICATION = 'hastelecom.wsgi.application'
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://hastelecom:hastelecom_pass@postgres:5432/hastelecom')
-from urllib.parse import urlparse
 parsed = urlparse(DATABASE_URL)
 if parsed.scheme.startswith('sqlite'):
     DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': parsed.path or BASE_DIR / 'db.sqlite3'}}
@@ -80,6 +74,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [os.getenv('CRM_ORIGIN', 'http://localhost')]
