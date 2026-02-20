@@ -7,41 +7,38 @@ services:
       POSTGRES_PASSWORD: hastelecom_pass
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://hastelecom:hastelecom_pass@postgres:5432/hastelecom
+      JWT_SECRET: super-secret-change-me
+      CRM_ORIGIN: http://has-telecom.local
+    depends_on:
+      - postgres
 
   crm:
     build:
       context: .
       dockerfile: apps/crm/Dockerfile
-    environment:
-      DATABASE_URL: postgresql://hastelecom:hastelecom_pass@postgres:5432/hastelecom
-      JWT_SECRET: super-secret-change-me
-      ACCESS_TOKEN_TTL: 15m
-      REFRESH_TOKEN_TTL: 7d
-    depends_on:
-      - postgres
 
   landing:
     build:
       context: .
       dockerfile: apps/landing/Dockerfile
-    environment:
-      DATABASE_URL: postgresql://hastelecom:hastelecom_pass@postgres:5432/hastelecom
-      CRM_PUBLIC_BASE_URL: http://nginx/crm/api/public
-      CRM_BASE_URL: http://nginx/crm/api
-    depends_on:
-      - crm
 
   nginx:
     image: nginx:1.27-alpine
     ports:
       - "80:80"
+    depends_on:
+      - api
+      - crm
+      - landing
     volumes:
       - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - landing
-      - crm
 
 volumes:
   pgdata:
